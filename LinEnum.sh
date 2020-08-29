@@ -1314,6 +1314,33 @@ if [ "$lxdgroup" ]; then
 fi
 }
 
+_software_versions()
+{
+if [ ! $(command -v $2) ]; then
+    return 1
+fi
+
+packages=`$2`
+if [ "$packages" ]; then
+  echo -e "\e[00;31m[+] Installed $1 packages\e[00m\n\n$packages" >> $format/software-versions/$1
+  echo -e "\n" >> $format/software-versions/$1
+fi
+}
+
+
+software_versions()
+{
+echo -e "\e[00;33m### SOFTWARE VERSIONS ################################\e[00m"
+
+mkdir $format/software-versions/ 2>/dev/null
+_software_versions "dpkg" "dpkg -l"
+_software_versions "snap" "snap list"
+_software_versions "brew" "brew list --versions"
+_software_versions "apk" "apk list"
+_software_versions "flatpak" "flatpak list --app"
+_software_versions "rpm" "rpm -qa"
+}
+
 footer()
 {
 echo -e "\e[00;33m### SCAN COMPLETE ####################################\e[00m" 
@@ -1333,6 +1360,7 @@ call_each()
   interesting_files
   docker_checks
   lxc_container_checks
+  software_versions
   footer
 }
 
